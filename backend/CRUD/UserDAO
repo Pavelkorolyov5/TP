@@ -1,0 +1,88 @@
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class UserDAO {
+    
+    public void createUser(String login, String password, boolean admin) throws SQLException {
+        String query = "INSERT INTO Users (Login, Password, Admin) VALUES (?, ?, ?)";
+        try (Connection connection = SSMSConnect.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, login);
+            statement.setString(2, password);
+            statement.setBoolean(3, admin);
+            statement.executeUpdate();
+            System.out.println("User created successfully.");
+        }
+    }
+
+    
+    public List<User> getAllUsers() throws SQLException {
+        String query = "SELECT * FROM Users";
+        List<User> users = new ArrayList<>();
+
+        try (Connection connection = SSMSConnect.getConnection();
+             Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(query)) {
+            while (resultSet.next()) {
+                int userId = resultSet.getInt("User_ID");
+                String login = resultSet.getString("Login");
+                String password = resultSet.getString("Password");
+                boolean admin = resultSet.getBoolean("Admin");
+                users.add(new User(userId, login, password, admin));
+            }
+        }
+        return users;
+    }
+
+    
+    public User getUserById(int userId) throws SQLException {
+        String query = "SELECT * FROM Users WHERE User_ID = ?";
+        try (Connection connection = SSMSConnect.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, userId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    String login = resultSet.getString("Login");
+                    String password = resultSet.getString("Password");
+                    boolean admin = resultSet.getBoolean("Admin");
+                    return new User(userId, login, password, admin);
+                }
+            }
+        }
+        return null;
+    }
+
+    
+    public void updateUser(int userId, String login, String password, boolean admin) throws SQLException {
+        String query = "UPDATE Users SET Login = ?, Password = ?, Admin = ? WHERE User_ID = ?";
+        try (Connection connection = SSMSConnect.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, login);
+            statement.setString(2, password);
+            statement.setBoolean(3, admin);
+            statement.setInt(4, userId);
+            int rowsUpdated = statement.executeUpdate();
+            if (rowsUpdated > 0) {
+                System.out.println("User updated successfully.");
+            } else {
+                System.out.println("User not found.");
+            }
+        }
+    }
+
+   
+    public void deleteUser(int userId) throws SQLException {
+        String query = "DELETE FROM Users WHERE User_ID = ?";
+        try (Connection connection = SSMSConnect.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, userId);
+            int rowsDeleted = statement.executeUpdate();
+            if (rowsDeleted > 0) {
+                System.out.println("User deleted successfully.");
+            } else {
+                System.out.println("User not found.");
+            }
+        }
+    }
+}
