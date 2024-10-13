@@ -11,7 +11,7 @@ public class User {
         this.admin = admin;
     }
 
-    // Геттеры и сеттеры
+
     public int getUserId() {
         return userId;
     }
