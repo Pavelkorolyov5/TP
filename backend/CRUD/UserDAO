@@ -3,20 +3,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserDAO {
-    
-    public void createUser(String login, String password, boolean admin) throws SQLException {
-        String query = "INSERT INTO Users (Login, Password, Admin) VALUES (?, ?, ?)";
-        try (Connection connection = SSMSConnect.getConnection();
-             PreparedStatement statement = connection.prepareStatement(query)) {
-            statement.setString(1, login);
-            statement.setString(2, password);
-            statement.setBoolean(3, admin);
+	//Create
+	public void insertUser(int userId, String login, String password, boolean isAdmin) {
+        String sql = "INSERT INTO Users (User_ID, Login, Password, Admin) VALUES (?, ?, ?, ?)";
+
+        try (Connection connection = SSMSConnect.getConnection(); 
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            
+            statement.setInt(1, userId);      
+            statement.setString(2, login);    
+            statement.setString(3, password); 
+            statement.setBoolean(4, isAdmin);  
+
+            
             statement.executeUpdate();
-            System.out.println("User created successfully.");
+            System.out.println("User inserted successfully");
+
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
-    
+   
     public List<User> getAllUsers() throws SQLException {
         String query = "SELECT * FROM Users";
         List<User> users = new ArrayList<>();
@@ -29,13 +38,14 @@ public class UserDAO {
                 String login = resultSet.getString("Login");
                 String password = resultSet.getString("Password");
                 boolean admin = resultSet.getBoolean("Admin");
+				/* System.out.println(login); */
                 users.add(new User(userId, login, password, admin));
             }
         }
         return users;
     }
 
-    
+    // Read (получить пользователя по ID)
     public User getUserById(int userId) throws SQLException {
         String query = "SELECT * FROM Users WHERE User_ID = ?";
         try (Connection connection = SSMSConnect.getConnection();
@@ -53,7 +63,7 @@ public class UserDAO {
         return null;
     }
 
-    
+    // Update (обновить данные пользователя)
     public void updateUser(int userId, String login, String password, boolean admin) throws SQLException {
         String query = "UPDATE Users SET Login = ?, Password = ?, Admin = ? WHERE User_ID = ?";
         try (Connection connection = SSMSConnect.getConnection();
@@ -71,7 +81,7 @@ public class UserDAO {
         }
     }
 
-   
+    // Delete (удалить пользователя)
     public void deleteUser(int userId) throws SQLException {
         String query = "DELETE FROM Users WHERE User_ID = ?";
         try (Connection connection = SSMSConnect.getConnection();
