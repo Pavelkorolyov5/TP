@@ -1,3 +1,5 @@
+package Razzvozz;
+
 public class User {
     private int userId;
     private String login;
@@ -42,6 +44,10 @@ public class User {
 
     public void setAdmin(boolean admin) {
         this.admin = admin;
+    }
+    
+    public String toJson() {
+        return "{\"User_ID\": " + userId + ", \"Login\": \"" + login + "\", \"Admin\": " + admin + "}";
     }
 
     @Override
