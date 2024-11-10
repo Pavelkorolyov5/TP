@@ -1,0 +1,95 @@
+package Razzvozz;
+
+import org.springframework.stereotype.Repository;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+@Repository
+public class ReviewDAO {
+    
+    // Create (добавить отзыв)
+    public void insertReview(int reviewId, int userId, int rate, String text) {
+        String sql = "INSERT INTO Reviews (Review_ID, User_ID, Rate, Text) VALUES (?, ?, ?, ?)";
+        try (Connection connection = SSMSConnect.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setInt(1, reviewId);
+            statement.setInt(2, userId);
+            statement.setInt(3, rate);
+            statement.setString(4, text);
+            statement.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to insert review with ID: " + reviewId, e);
+        }
+    }
+    
+    // Read (получить отзыв по ID)
+    public Review getReviewById(int reviewId) throws SQLException {
+        String query = "SELECT * FROM Reviews WHERE Review_ID = ?";
+        try (Connection connection = SSMSConnect.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+             
+            statement.setInt(1, reviewId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    int userId = resultSet.getInt("User_ID");
+                    int rate = resultSet.getInt("Rate");
+                    String text = resultSet.getString("Text");
+                    return new Review(reviewId, userId, rate, text);
+                }
+            }
+        }
+        return null;
+    }
+
+    // Read (получить все отзывы)
+    public List<Review> getAllReviews() throws SQLException {
+        String query = "SELECT * FROM Reviews";
+        List<Review> reviews = new ArrayList<>();
+        try (Connection connection = SSMSConnect.getConnection();
+             Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(query)) {
+            while (resultSet.next()) {
+                int reviewId = resultSet.getInt("Review_ID");
+                int userId = resultSet.getInt("User_ID");
+                int rate = resultSet.getInt("Rate");
+                String text = resultSet.getString("Text");
+                reviews.add(new Review(reviewId, userId, rate, text));
+            }
+        }
+        return reviews;
+    }
+
+    // Update (обновить отзыв)
+    public void updateReview(int reviewId, String text, int userId, int rate) throws SQLException {
+        String query = "UPDATE Reviews SET User_ID = ?, Rate = ?, Text = ? WHERE Review_ID = ?";
+        try (Connection connection = SSMSConnect.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+
+            statement.setInt(1, userId);
+            statement.setInt(2, rate);
+            statement.setString(3, text);
+            statement.setInt(4, reviewId);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Error updating review with ID: " + reviewId, e);
+        }
+    }
+
+    // Delete (удалить отзыв)
+    public void deleteReview(int reviewId) throws SQLException {
+        String query = "DELETE FROM Reviews WHERE Review_ID = ?";
+        try (Connection connection = SSMSConnect.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+
+            statement.setInt(1, reviewId);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Error deleting review with ID: " + reviewId, e);
+        }
+    }
+}
+
