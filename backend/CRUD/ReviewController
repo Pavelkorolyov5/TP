@@ -1,0 +1,99 @@
+package Razzvozz;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.sql.SQLException;
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/reviews")
+public class ReviewController {
+
+    @Autowired
+    private ReviewService reviewService;
+
+    @Operation(summary = "Добавить новый отзыв")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Отзыв успешно добавлен"),
+        @ApiResponse(responseCode = "500", description = "Ошибка сервера при добавлении отзыва")
+    })
+    @PostMapping
+    public ResponseEntity<String> createReview(
+            @Parameter(description = "Данные нового отзыва") @RequestBody Review review) throws SQLException {
+        reviewService.addReview(review.getReviewId(), review.getUserId(), review.getRate(), review.getText());
+        return ResponseEntity.ok("Отзыв добавлен");
+    }
+
+    @Operation(summary = "Получить все отзывы")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Список отзывов получен"),
+        @ApiResponse(responseCode = "500", description = "Ошибка сервера при получении списка отзывов")
+    })
+    @GetMapping
+    public ResponseEntity<List<Review>> getAllReviews() {
+        try {
+            List<Review> reviews = reviewService.findAllReviews();
+            return ResponseEntity.ok(reviews);
+        } catch (SQLException e) {
+            return ResponseEntity.status(500).body(null);
+        }
+    }
+
+    @Operation(summary = "Получить отзыв по ID")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Отзыв найден"),
+        @ApiResponse(responseCode = "404", description = "Отзыв не найден"),
+        @ApiResponse(responseCode = "500", description = "Ошибка сервера при получении отзыва")
+    })
+    @GetMapping("/{id}")
+    public ResponseEntity<Review> getReviewById(
+            @Parameter(description = "ID отзыва для поиска") @PathVariable int id) {
+        try {
+            Review review = reviewService.findReviewById(id);
+            return review != null ? ResponseEntity.ok(review) : ResponseEntity.notFound().build();
+        } catch (SQLException e) {
+            return ResponseEntity.status(500).body(null);
+        }
+    }
+
+    @Operation(summary = "Обновить отзыв по ID")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Отзыв успешно обновлен"),
+        @ApiResponse(responseCode = "404", description = "Отзыв не найден для обновления"),
+        @ApiResponse(responseCode = "500", description = "Ошибка сервера при обновлении отзыва")
+    })
+    @PutMapping("/{id}")
+    public ResponseEntity<String> updateReview(
+            @Parameter(description = "ID отзыва для обновления") @PathVariable int id,
+            @Parameter(description = "Обновленные данные отзыва") @RequestBody Review review) {
+        try {
+            reviewService.modifyReview(id, review.getText(), review.getUserId(), review.getRate());
+            return ResponseEntity.ok("Отзыв обновлен");
+        } catch (SQLException e) {
+            return ResponseEntity.status(500).body("Ошибка при обновлении отзыва: " + e.getMessage());
+        }
+    }
+
+    @Operation(summary = "Удалить отзыв по ID")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Отзыв успешно удален"),
+        @ApiResponse(responseCode = "404", description = "Отзыв не найден для удаления"),
+        @ApiResponse(responseCode = "500", description = "Ошибка сервера при удалении отзыва")
+    })
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteReview(
+            @Parameter(description = "ID отзыва для удаления") @PathVariable int id) {
+        try {
+            reviewService.removeReview(id);
+            return ResponseEntity.ok("Отзыв удален");
+        } catch (SQLException e) {
+            return ResponseEntity.status(500).body("Ошибка при удалении отзыва: " + e.getMessage());
+        }
+    }
+}
