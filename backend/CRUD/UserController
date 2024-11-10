@@ -1,0 +1,100 @@
+package Razzvozz;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.sql.SQLException;
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/users")
+public class UserController {
+
+    @Autowired
+    private UserService userService;
+
+    @Operation(summary = "Создать нового пользователя")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Пользователь успешно создан"),
+        @ApiResponse(responseCode = "500", description = "Ошибка сервера при создании пользователя")
+    })
+    @PostMapping
+    public ResponseEntity<String> createUser(
+            @Parameter(description = "Данные нового пользователя") @RequestBody User user) throws SQLException {
+        userService.createUser(user);
+        return ResponseEntity.ok("Пользователь создан");
+    }
+
+    @Operation(summary = "Получить список всех пользователей")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Список пользователей получен"),
+        @ApiResponse(responseCode = "500", description = "Ошибка сервера при получении списка пользователей")
+    })
+    @GetMapping
+    public ResponseEntity<List<User>> getAllUsers() {
+        try {
+            List<User> users = userService.getAllUsers();
+            return ResponseEntity.ok(users);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(null);
+        }
+    }
+
+    @Operation(summary = "Получить пользователя по ID")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Пользователь найден"),
+        @ApiResponse(responseCode = "404", description = "Пользователь не найден")
+    })
+    @GetMapping("/{id}")
+    public ResponseEntity<User> getUserById(
+            @Parameter(description = "ID пользователя для поиска") @PathVariable int id) {
+        try {
+            User user = userService.getUserById(id);
+            return user != null ? ResponseEntity.ok(user) : ResponseEntity.notFound().build();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).build();
+        }
+    }
+
+    @Operation(summary = "Обновить данные пользователя по ID")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Пользователь успешно обновлен"),
+        @ApiResponse(responseCode = "404", description = "Пользователь не найден для обновления")
+    })
+    @PutMapping("/{id}")
+    public ResponseEntity<String> updateUser(
+            @Parameter(description = "ID пользователя для обновления") @PathVariable int id,
+            @Parameter(description = "Обновленные данные пользователя") @RequestBody User user) {
+        try {
+            userService.updateUser(id, user);
+            return ResponseEntity.ok("Пользователь обновлен");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Ошибка сервера при обновлении пользователя");
+        }
+    }
+
+    @Operation(summary = "Удалить пользователя по ID")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Пользователь успешно удален"),
+        @ApiResponse(responseCode = "404", description = "Пользователь не найден для удаления")
+    })
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteUser(
+            @Parameter(description = "ID пользователя для удаления") @PathVariable int id) {
+        try {
+            userService.deleteUser(id);
+            return ResponseEntity.ok("Пользователь удален");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Ошибка сервера при удалении пользователя");
+        }
+    }
+}
