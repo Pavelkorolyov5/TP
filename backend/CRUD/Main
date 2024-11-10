@@ -1,70 +1,11 @@
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
+package Razzvozz;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import java.io.File;
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+@SpringBootApplication
 public class Main {
+
     public static void main(String[] args) {
-        UserDAO userDAO = new UserDAO();
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
-
-        Map<String, Object> outputData = new HashMap<>();
-        List<User> users = new ArrayList<>();
-        List<String> messages = new ArrayList<>();
-
-        try {
-            // Create a new user
-            int newUserId = 5; 
-            String newLogin = "user5";
-            String newPassword = "password5";
-            boolean newAdmin = false;
-
-            userDAO.insertUser(newUserId, newLogin, newPassword, newAdmin);
-            messages.add("User created with ID: " + newUserId);
-
-            // Read a user by ID
-			/*
-			 * User user = userDAO.getUserById(newUserId); if (user != null) {
-			 * users.add(user); } else { messages.add("User not found with ID: " +
-			 * newUserId); }
-			 */
-
-            // Read all users
-            users = userDAO.getAllUsers();
-            messages.add("Retrieved all users.");
-
-            // Update user
-            userDAO.updateUser(newUserId, "updatedUser", "newPassword", true);
-            messages.add("User updated with ID: " + newUserId);
-
-            // Delete user
-            userDAO.deleteUser(newUserId);
-            messages.add("User deleted with ID: " + newUserId);
-
-        } catch (SQLException e) {
-            messages.add("Database error: " + e.getMessage());
-        } catch (Exception e) {
-            messages.add("Error: " + e.getMessage());
-        }
-
-        outputData.put("users", users);
-        outputData.put("messages", messages);
-        saveOutputToJson(objectMapper, outputData);
-    }
-
-    private static void saveOutputToJson(ObjectMapper objectMapper, Map<String, Object> outputData) {
-        try {
-            objectMapper.writeValue(new File("output.json"), outputData);
-            System.out.println("Output saved to JSON file successfully.");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        SpringApplication.run(Main.class, args);
     }
 }
