@@ -1,0 +1,60 @@
+package Razzvozz;
+public class Review {
+    private int reviewId;
+    private int userId;
+    private int rate;
+    private String text;
+
+    public Review(int reviewId, int userId, int rate, String text) {
+        this.reviewId = reviewId;
+        this.userId = userId;
+        this.rate = rate;
+        this.text = text;
+    }
+
+    public int getReviewId() {
+        return reviewId;
+    }
+
+    public void setReviewId(int reviewId) {
+        this.reviewId = reviewId;
+    }
+
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+
+    public int getRate() {
+        return rate;
+    }
+
+    public void setRate(int rate) {
+        this.rate = rate;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    @Override
+    public String toString() {
+    return "Отзыв{" +
+            "Review_ID=" + reviewId +
+            ", User_ID=" + userId +
+            ", Rate=" + rate +
+            ", Text='" + text + '\'' +
+            '}';
+    }
+
+	public String toJson() {
+		return "{\"Review_ID\": " + reviewId + ", \"User_ID\": " + userId + ", \"Rate\": " + rate + ", \"Text\": \"" + text + "\"}";
+	}
+}
