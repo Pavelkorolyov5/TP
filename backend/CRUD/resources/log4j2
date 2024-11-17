@@ -1,0 +1,28 @@
+status = debug
+name = PropertiesConfig
+
+
+# Rolling File Appender
+appender.rolling.type = RollingFile
+appender.rolling.name = RollingFileAppender
+appender.rolling.fileName = D:/FORECLIPSE/CRUD/logs/app.log
+appender.rolling.filePattern = D:/FORECLIPSE/CRUD/logs/app-%d{yyyy-MM-dd}-%i.log
+appender.rolling.layout.type = PatternLayout
+appender.rolling.layout.pattern = %d{ISO8601} [%t] %-5level %logger{36} - %msg%n
+
+# Rolling Policies
+appender.rolling.policies.type = Policies
+appender.rolling.policies.timeBasedTriggeringPolicy.type = TimeBasedTriggeringPolicy
+appender.rolling.policies.timeBasedTriggeringPolicy.interval = 1
+appender.rolling.policies.timeBasedTriggeringPolicy.modulate = true
+
+appender.rolling.policies.sizeBasedTriggeringPolicy.type = SizeBasedTriggeringPolicy
+appender.rolling.policies.sizeBasedTriggeringPolicy.size = 10MB
+
+# Loggers
+logger.springframework.name = org.springframework
+logger.springframework.level = debug
+
+# Root logger configuration
+logger.root.level = debug
+logger.root.appenderRef.rolling.ref = RollingFileAppender
