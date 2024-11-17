@@ -1,1 +1,134 @@
+package test;
+
+import Razzvozz.User;
+import Razzvozz.UserDAO;
+import Razzvozz.UserService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+class UserServiceTest {
+
+    @Mock
+    private UserDAO userDAO;
+
+    @InjectMocks
+    private UserService userService;
+
+    private User testUser;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+        testUser = new User(1, "testUser", "password123", false);
+    }
+
+    @Test
+    void testCreateUser() throws SQLException {
+        // Test for successful user creation
+        doNothing().when(userDAO).insertUser(testUser.getUserId(), testUser.getLogin(), testUser.getPassword(), testUser.isAdmin());
+
+        assertDoesNotThrow(() -> userService.createUser(testUser));
+        verify(userDAO, times(1)).insertUser(testUser.getUserId(), testUser.getLogin(), testUser.getPassword(), testUser.isAdmin());
+    }
+
+    @Test
+    void testAuthenticateUserSuccessful() throws SQLException {
+        // Test for successful authentication
+        when(userDAO.getUserByLogin(testUser.getLogin())).thenReturn(testUser);
+
+        boolean isAuthenticated = userService.authenticateUser(testUser.getLogin(), testUser.getPassword());
+        assertTrue(isAuthenticated);
+        verify(userDAO, times(1)).getUserByLogin(testUser.getLogin());
+    }
+
+    @Test
+    void testAuthenticateUserFailure() throws SQLException {
+        // Test for failed authentication (wrong password)
+        when(userDAO.getUserByLogin(testUser.getLogin())).thenReturn(testUser);
+
+        boolean isAuthenticated = userService.authenticateUser(testUser.getLogin(), "wrongPassword");
+        assertFalse(isAuthenticated);
+        verify(userDAO, times(1)).getUserByLogin(testUser.getLogin());
+    }
+
+    @Test
+    void testGetAllUsers() throws SQLException {
+        // Test for retrieving all users
+        List<User> expectedUsers = new ArrayList<>();
+        expectedUsers.add(testUser);
+        when(userDAO.getAllUsers()).thenReturn(expectedUsers);
+
+        List<User> actualUsers = userService.getAllUsers();
+        assertEquals(expectedUsers, actualUsers);
+        verify(userDAO, times(1)).getAllUsers();
+    }
+
+    @Test
+    void testGetUserByIdFound() throws SQLException {
+        // Test for retrieving user by ID when user is found
+        when(userDAO.getUserById(testUser.getUserId())).thenReturn(testUser);
+
+        User actualUser = userService.getUserById(testUser.getUserId());
+        assertEquals(testUser, actualUser);
+        verify(userDAO, times(1)).getUserById(testUser.getUserId());
+    }
+
+    @Test
+    void testGetUserByIdNotFound() throws SQLException {
+        // Test for retrieving user by ID when user is not found
+        when(userDAO.getUserById(testUser.getUserId())).thenReturn(null);
+
+        User actualUser = userService.getUserById(testUser.getUserId());
+        assertNull(actualUser);
+        verify(userDAO, times(1)).getUserById(testUser.getUserId());
+    }
+
+    @Test
+    void testUpdateUser() throws SQLException {
+        // Test for updating user
+        doNothing().when(userDAO).updateUser(testUser.getUserId(), testUser.getLogin(), testUser.getPassword(), testUser.isAdmin());
+
+        assertDoesNotThrow(() -> userService.updateUser(testUser.getUserId(), testUser));
+        verify(userDAO, times(1)).updateUser(testUser.getUserId(), testUser.getLogin(), testUser.getPassword(), testUser.isAdmin());
+    }
+
+    @Test
+    void testDeleteUser() throws SQLException {
+        // Test for deleting user
+        doNothing().when(userDAO).deleteUser(testUser.getUserId());
+
+        assertDoesNotThrow(() -> userService.deleteUser(testUser.getUserId()));
+        verify(userDAO, times(1)).deleteUser(testUser.getUserId());
+    }
+
+    @Test
+    void testGetUserByLoginFound() throws SQLException {
+        // Test for getting user by login when user is found
+        when(userDAO.getUserByLogin(testUser.getLogin())).thenReturn(testUser);
+
+        User actualUser = userService.getUserByLogin(testUser.getLogin());
+        assertEquals(testUser, actualUser);
+        verify(userDAO, times(1)).getUserByLogin(testUser.getLogin());
+    }
+
+    @Test
+    void testGetUserByLoginNotFound() throws SQLException {
+        // Test for getting user by login when user is not found
+        when(userDAO.getUserByLogin(testUser.getLogin())).thenReturn(null);
+
+        User actualUser = userService.getUserByLogin(testUser.getLogin());
+        assertNull(actualUser);
+        verify(userDAO, times(1)).getUserByLogin(testUser.getLogin());
+    }
+}
 
