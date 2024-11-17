@@ -1,0 +1,43 @@
+package Razzvozz;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+
+import java.sql.SQLException;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+@RestController
+@RequestMapping("/api/auth")
+public class AuthController {
+
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    @Autowired
+    private UserService userService;
+
+    @Operation(summary = "Авторизация пользователя и генерация JWT токена")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "JWT токен успешно сгенерирован"),
+            @ApiResponse(responseCode = "401", description = "Неверное имя пользователя или пароль")
+    })
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestParam String username, @RequestParam String password) {
+        try {
+            if (userService.authenticateUser(username, password)) {
+                // Генерация токена
+                String token = jwtUtil.generateToken(username);
+                return ResponseEntity.ok(token);
+            } else {
+                return ResponseEntity.status(401).body("Invalid username or password");
+            }
+        } catch (SQLException e) {
+            return ResponseEntity.status(500).body("Ошибка сервера: " + e.getMessage());
+        }
+    }
+}
