@@ -14,4 +14,5 @@ Swagger:
  ![изображение](https://github.com/user-attachments/assets/34df30dc-fed7-4abc-8e1b-3d8e395c3e1b)
 Ссылка на Swagger:
 http://localhost:8080/swagger-ui/index.html
+
 Сетевое взаимодействие работает через Radmin.vpn и http запросы, которые отправляются с фронтэнда
