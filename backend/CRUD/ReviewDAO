@@ -9,7 +9,7 @@ import java.util.List;
 @Repository
 public class ReviewDAO {
     
-    // Create (добавить отзыв)
+
     public void insertReview(int reviewId, int userId, int rate, String text) {
         String sql = "INSERT INTO Reviews (Review_ID, User_ID, Rate, Text) VALUES (?, ?, ?, ?)";
         try (Connection connection = SSMSConnect.getConnection();
@@ -25,8 +25,7 @@ public class ReviewDAO {
             throw new RuntimeException("Failed to insert review with ID: " + reviewId, e);
         }
     }
-    
-    // Read (получить отзыв по ID)
+
     public Review getReviewById(int reviewId) throws SQLException {
         String query = "SELECT * FROM Reviews WHERE Review_ID = ?";
         try (Connection connection = SSMSConnect.getConnection();
@@ -45,7 +44,7 @@ public class ReviewDAO {
         return null;
     }
 
-    // Read (получить все отзывы)
+
     public List<Review> getAllReviews() throws SQLException {
         String query = "SELECT * FROM Reviews";
         List<Review> reviews = new ArrayList<>();
@@ -63,7 +62,7 @@ public class ReviewDAO {
         return reviews;
     }
 
-    // Update (обновить отзыв)
+
     public void updateReview(int reviewId, String text, int userId, int rate) throws SQLException {
         String query = "UPDATE Reviews SET User_ID = ?, Rate = ?, Text = ? WHERE Review_ID = ?";
         try (Connection connection = SSMSConnect.getConnection();
@@ -79,7 +78,7 @@ public class ReviewDAO {
         }
     }
 
-    // Delete (удалить отзыв)
+
     public void deleteReview(int reviewId) throws SQLException {
         String query = "DELETE FROM Reviews WHERE Review_ID = ?";
         try (Connection connection = SSMSConnect.getConnection();
@@ -92,4 +91,3 @@ public class ReviewDAO {
         }
     }
 }
-
