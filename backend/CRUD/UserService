@@ -19,11 +19,16 @@ public class UserService {
     @Autowired
     private UserDAO userDAO;
 
+   
     public void createUser(User user) throws SQLException {
-        userDAO.insertUser(user.getUserId(), user.getLogin(), user.getPassword(), user.isAdmin());
-        logToJson("Создан пользователь", user.getUserId(), user.getLogin(), user.isAdmin());
+        if (isEmailRegistered(user.getEmail())) {
+            throw new IllegalArgumentException("Email уже зарегистрирован: " + user.getEmail());
+        }
+        userDAO.insertUser(user.getUserId(), user.getLogin(), user.getPassword(), user.isAdmin(), user.getEmail(), user.getTelephone());
+        logToJson("Создан пользователь", user.getUserId(), user.getLogin(), user.isAdmin(), user.getEmail(), user.getTelephone());
         logger.info("Пользователь создан: " + user.getLogin());
     }
+
     
     public boolean authenticateUser(String login, String password) throws SQLException {
         User user = userDAO.getUserByLogin(login);
@@ -40,17 +45,25 @@ public class UserService {
         return isAuthenticated;
     }
 
+   
+    public boolean isEmailRegistered(String email) throws SQLException {
+        return userDAO.isEmailRegistered(email);
+    }
+
+   
     public List<User> getAllUsers() throws SQLException {
         List<User> users = userDAO.getAllUsers();
         logToJson("Получен список всех пользователей", users);
         logger.info("Получен список всех пользователей, количество: " + users.size());
         return users;
     }
+
     
     public User getUserByLogin(String login) throws SQLException {
         return userDAO.getUserByLogin(login);
     }
 
+    
     public User getUserById(int id) throws SQLException {
         User user = userDAO.getUserById(id);
         if (user != null) {
@@ -61,35 +74,51 @@ public class UserService {
         return user;
     }
 
+    
     public void updateUser(int id, User user) throws SQLException {
-        userDAO.updateUser(id, user.getLogin(), user.getPassword(), user.isAdmin());
-        logToJson("Обновлен пользователь", id, user.getLogin(), user.isAdmin());
+        userDAO.updateUser(id, user.getLogin(), user.getPassword(), user.isAdmin(), user.getEmail(), user.getTelephone());
+        logToJson("Обновлен пользователь", id, user.getLogin(), user.isAdmin(), user.getEmail(), user.getTelephone());
         logger.info("Пользователь обновлен: ID=" + id);
     }
 
+    
     public void deleteUser(int id) throws SQLException {
         userDAO.deleteUser(id);
-        logToJson("Удален пользователь", id, null, false);
+        logToJson("Удален пользователь", id, null, false, null, null);
         logger.info("Пользователь удален: ID=" + id);
     }
 
-    private void logToJson(String action, int userId, String login, boolean isAdmin) {
+    
+    private void logToJson(String action, int userId, String login, boolean isAdmin, String email, String telephone) {
         try (FileWriter fileWriter = new FileWriter(JSON_LOG_FILE, true)) {
-            fileWriter.write("{\"action\": \"" + action + "\", \"user\": {\"User_ID\": " + userId + ", \"Login\": \"" + login + "\", \"Admin\": " + isAdmin + "}}\n");
+            fileWriter.write("{\"action\": \"" + action + "\", \"user\": {\"User_ID\": " + userId + ", \"Login\": \"" + login +
+                    "\", \"Admin\": " + isAdmin + ", \"Email\": \"" + email + "\", \"Telephone\": \"" + telephone + "\"}}\n");
         } catch (IOException e) {
             logger.error("Ошибка записи в JSON файл", e);
         }
     }
 
+    
     private void logToJson(String action, List<User> users) {
         try (FileWriter fileWriter = new FileWriter(JSON_LOG_FILE, true)) {
             fileWriter.write("{\"action\": \"" + action + "\", \"users\": [\n");
             for (User user : users) {
-                fileWriter.write("  " + user.toJson() + ",\n");
+                fileWriter.write("  {\"User_ID\": " + user.getUserId() + ", \"Login\": \"" + user.getLogin() +
+                        "\", \"Admin\": " + user.isAdmin() + ", \"Email\": \"" + user.getEmail() +
+                        "\", \"Telephone\": \"" + user.getTelephone() + "\"},\n");
             }
             fileWriter.write("]}\n");
         } catch (IOException e) {
             logger.error("Ошибка записи в JSON файл", e);
+        }
+    }
+
+    
+    public User findByLoginAndPassword(String login, String password) {
+        try {
+            return userDAO.getUserByLoginAndPassword(login, password);
+        } catch (SQLException e) {
+            throw new RuntimeException("Ошибка базы данных", e);
         }
     }
 }
