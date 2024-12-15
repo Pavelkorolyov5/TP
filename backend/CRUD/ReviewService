@@ -15,14 +15,13 @@ public class ReviewService {
     @Autowired
     private ReviewDAO reviewDAO;
 
-    // Добавление нового отзыва
+
     public void addReview(int reviewId, int userId, int rate, String text) {
         logger.debug("Adding review with ID: " + reviewId);
         reviewDAO.insertReview(reviewId, userId, rate, text);
         logger.info("Review added successfully with ID: " + reviewId);
     }
 
-    // Получение отзыва по ID
     public Review findReviewById(int reviewId) throws SQLException {
         logger.debug("Retrieving review with ID: " + reviewId);
         Review review = reviewDAO.getReviewById(reviewId);
@@ -34,7 +33,7 @@ public class ReviewService {
         return review;
     }
 
-    // Получение всех отзывов
+ 
     public List<Review> findAllReviews() throws SQLException {
         logger.debug("Retrieving all reviews");
         List<Review> reviews = reviewDAO.getAllReviews();
@@ -42,14 +41,14 @@ public class ReviewService {
         return reviews;
     }
 
-    // Обновление отзыва
+  
     public void modifyReview(int reviewId, String text, int userId, int rate) throws SQLException {
         logger.debug("Updating review with ID: " + reviewId);
         reviewDAO.updateReview(reviewId, text, userId, rate);
         logger.info("Review updated successfully with ID: " + reviewId);
     }
 
-    // Удаление отзыва
+
     public void removeReview(int reviewId) throws SQLException {
         logger.debug("Deleting review with ID: " + reviewId);
         reviewDAO.deleteReview(reviewId);
