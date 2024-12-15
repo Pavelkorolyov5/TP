@@ -7,7 +7,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import io.jsonwebtoken.Claims;
+import org.springframework.http.HttpStatus;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -18,17 +19,23 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @Operation(summary = "Создать нового пользователя")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Пользователь успешно создан"),
-        @ApiResponse(responseCode = "500", description = "Ошибка сервера при создании пользователя")
-    })
-    @PostMapping
-    public ResponseEntity<String> createUser(
-            @Parameter(description = "Данные нового пользователя") @RequestBody User user) throws SQLException {
-        userService.createUser(user);
-        return ResponseEntity.ok("Пользователь создан");
-    }
+	
+	  @Operation(summary = "Создать нового пользователя")
+	  
+	  @ApiResponses(value = {
+	  
+	  @ApiResponse(responseCode = "200", description =
+	  "Пользователь успешно создан"),
+	  
+	  @ApiResponse(responseCode = "500", description =
+	  "Ошибка сервера при создании пользователя") })
+	  
+	  @PostMapping public ResponseEntity<String> createUser(
+	  
+	  @Parameter(description = "Данные нового пользователя") @RequestBody User
+	  user) throws SQLException { userService.createUser(user); return
+	  ResponseEntity.ok("Пользователь создан"); }
+	 
 
     @Operation(summary = "Получить список всех пользователей")
     @ApiResponses(value = {
@@ -97,4 +104,5 @@ public class UserController {
             return ResponseEntity.status(500).body("Ошибка сервера при удалении пользователя");
         }
     }
+    
 }
