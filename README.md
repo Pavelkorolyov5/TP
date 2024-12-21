@@ -15,4 +15,7 @@ Swagger:
 Ссылка на Swagger:
 http://localhost:8080/swagger-ui/index.html
 
-Сетевое взаимодействие работает через Radmin.vpn и http запросы, которые отправляются с фронтэнда
+Сетевое взаимодействие работает через Radmin.vpn и http запросы, которые отправляются с фронтэ
+API: /api/auth(/login и /register) для аунтификации
+/api(/users,/reviews,/driver,/orders,/vehicles) для круд операций с сущностями
+/ws-chat для групповой рассылки
