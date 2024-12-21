@@ -1,0 +1,49 @@
+ackage Razzvozz;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.sql.SQLException;
+import java.util.List;
+
+@Service
+public class DriverService {
+
+    private static final Logger logger = LogManager.getLogger(DriverService.class);
+
+    @Autowired
+    private DriverDAO driverDAO;
+
+    public void createDriver(Driver driver) throws SQLException {
+        driverDAO.insertDriver(driver.getDriverId(), driver.getDriverName(), driver.getTelephone(), driver.getSalary());
+        logger.info("Водитель создан: " + driver.getDriverName());
+    }
+
+    public List<Driver> getAllDrivers() throws SQLException {
+        List<Driver> drivers = driverDAO.getAllDrivers();
+        logger.info("Получен список всех водителей, количество: " + drivers.size());
+        return drivers;
+    }
+
+    public Driver getDriverById(int driverId) throws SQLException {
+        Driver driver = driverDAO.getDriverById(driverId);
+        if (driver != null) {
+            logger.info("Водитель найден: ID=" + driverId);
+        } else {
+            logger.warn("Водитель с ID=" + driverId + " не найден");
+        }
+        return driver;
+    }
+
+    public void updateDriver(int driverId, Driver driver) throws SQLException {
+        driverDAO.updateDriver(driverId, driver.getDriverName(), driver.getTelephone(), driver.getSalary());
+        logger.info("Водитель обновлён: ID=" + driverId);
+    }
+
+    public void deleteDriver(int driverId) throws SQLException {
+        driverDAO.deleteDriver(driverId);
+        logger.info("Водитель удалён: ID=" + driverId);
+    }
+}
