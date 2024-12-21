@@ -1,0 +1,78 @@
+package Razzvozz;
+
+import org.springframework.stereotype.Repository;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+@Repository
+public class DriverDAO {
+
+    public void insertDriver(int driverId, String driverName, String telephone, double salary) throws SQLException {
+        String query = "INSERT INTO Drivers (Driver_ID, Driver_Name, Telephone, Salary) VALUES (?, ?, ?, ?)";
+        try (Connection connection = SSMSConnect.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, driverId);
+            statement.setString(2, driverName);
+            statement.setString(3, telephone);
+            statement.setDouble(4, salary);
+            statement.executeUpdate();
+        }
+    }
+
+    public List<Driver> getAllDrivers() throws SQLException {
+        List<Driver> drivers = new ArrayList<>();
+        String query = "SELECT Driver_ID, Driver_Name, Telephone, Salary FROM Drivers";
+        try (Connection connection = SSMSConnect.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query);
+             ResultSet resultSet = statement.executeQuery()) {
+            while (resultSet.next()) {
+                int driverId = resultSet.getInt("Driver_ID");
+                String driverName = resultSet.getString("Driver_Name");
+                String telephone = resultSet.getString("Telephone");
+                double salary = resultSet.getDouble("Salary");
+                drivers.add(new Driver(driverId, driverName, telephone, salary));
+            }
+        }
+        return drivers;
+    }
+
+    public Driver getDriverById(int driverId) throws SQLException {
+        String query = "SELECT Driver_ID, Driver_Name, Telephone, Salary FROM Drivers WHERE Driver_ID = ?";
+        try (Connection connection = SSMSConnect.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, driverId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    String driverName = resultSet.getString("Driver_Name");
+                    String telephone = resultSet.getString("Telephone");
+                    double salary = resultSet.getDouble("Salary");
+                    return new Driver(driverId, driverName, telephone, salary);
+                }
+            }
+        }
+        return null;
+    }
+
+    public void updateDriver(int driverId, String driverName, String telephone, double salary) throws SQLException {
+        String query = "UPDATE Drivers SET Driver_Name = ?, Telephone = ?, Salary = ? WHERE Driver_ID = ?";
+        try (Connection connection = SSMSConnect.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, driverName);
+            statement.setString(2, telephone);
+            statement.setDouble(3, salary);
+            statement.setInt(4, driverId);
+            statement.executeUpdate();
+        }
+    }
+
+    public void deleteDriver(int driverId) throws SQLException {
+        String query = "DELETE FROM Drivers WHERE Driver_ID = ?";
+        try (Connection connection = SSMSConnect.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, driverId);
+            statement.executeUpdate();
+        }
+    }
+}
