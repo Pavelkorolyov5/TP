@@ -1,0 +1,39 @@
+package Razzvozz;
+
+public class Vehicle {
+    private int vehicleId;
+    private double loadCapacity;
+    private int driverId;
+
+    public Vehicle() {}
+
+    public Vehicle(int vehicleId, double loadCapacity, int driverId) {
+        this.vehicleId = vehicleId;
+        this.loadCapacity = loadCapacity;
+        this.driverId = driverId;
+    }
+
+    public int getVehicleId() {
+        return vehicleId;
+    }
+
+    public void setVehicleId(int vehicleId) {
+        this.vehicleId = vehicleId;
+    }
+
+    public double getLoadCapacity() {
+        return loadCapacity;
+    }
+
+    public void setLoadCapacity(double loadCapacity) {
+        this.loadCapacity = loadCapacity;
+    }
+
+    public int getDriverId() {
+        return driverId;
+    }
+
+    public void setDriverId(int driverId) {
+        this.driverId = driverId;
+    }
+}
