@@ -1,0 +1,69 @@
+package Razzvozz;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.sql.SQLException;
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/orders")
+public class OrderController {
+
+    @Autowired
+    private OrderService orderService;
+
+    @PostMapping
+    public ResponseEntity<String> createOrder(@RequestBody Order order) {
+        try {
+            orderService.createOrder(order);
+            return ResponseEntity.ok("Order created successfully!");
+        } catch (SQLException e) {
+            return ResponseEntity.status(500).body("Error: " + e.getMessage());
+        }
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Order>> getAllOrders() {
+        try {
+            return ResponseEntity.ok(orderService.getAllOrders());
+        } catch (SQLException e) {
+            return ResponseEntity.status(500).body(null);
+        }
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Order> getOrderById(@PathVariable int id) {
+        try {
+            Order order = orderService.getOrderById(id);
+            if (order != null) {
+                return ResponseEntity.ok(order);
+            } else {
+                return ResponseEntity.status(404).body(null);
+            }
+        } catch (SQLException e) {
+            return ResponseEntity.status(500).body(null);
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<String> updateOrder(@PathVariable int id, @RequestBody Order order) {
+        try {
+            orderService.updateOrder(id, order);
+            return ResponseEntity.ok("Order updated successfully!");
+        } catch (SQLException e) {
+            return ResponseEntity.status(500).body("Error: " + e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteOrder(@PathVariable int id) {
+        try {
+            orderService.deleteOrder(id);
+            return ResponseEntity.ok("Order deleted successfully!");
+        } catch (SQLException e) {
+            return ResponseEntity.status(500).body("Error: " + e.getMessage());
+        }
+    }
+}
