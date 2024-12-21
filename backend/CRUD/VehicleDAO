@@ -1,0 +1,79 @@
+package Razzvozz;
+
+import org.springframework.stereotype.Repository;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+@Repository
+public class VehicleDAO {
+
+   
+    public void insertVehicle(int vehicleId, double loadCapacity, int driverId) throws SQLException {
+        String query = "INSERT INTO Vehicles (Vehicle_ID, Load_Capacity, Driver_ID) VALUES (?, ?, ?)";
+        try (Connection connection = SSMSConnect.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, vehicleId);
+            statement.setDouble(2, loadCapacity);
+            statement.setInt(3, driverId);
+            statement.executeUpdate();
+        }
+    }
+
+
+    public List<Vehicle> getAllVehicles() throws SQLException {
+        List<Vehicle> vehicles = new ArrayList<>();
+        String query = "SELECT Vehicle_ID, Load_Capacity, Driver_ID FROM Vehicles";
+        try (Connection connection = SSMSConnect.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query);
+             ResultSet resultSet = statement.executeQuery()) {
+            while (resultSet.next()) {
+                int vehicleId = resultSet.getInt("Vehicle_ID");
+                double loadCapacity = resultSet.getDouble("Load_Capacity");
+                int driverId = resultSet.getInt("Driver_ID");
+                vehicles.add(new Vehicle(vehicleId, loadCapacity, driverId));
+            }
+        }
+        return vehicles;
+    }
+
+
+    public Vehicle getVehicleById(int vehicleId) throws SQLException {
+        String query = "SELECT Vehicle_ID, Load_Capacity, Driver_ID FROM Vehicles WHERE Vehicle_ID = ?";
+        try (Connection connection = SSMSConnect.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, vehicleId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    double loadCapacity = resultSet.getDouble("Load_Capacity");
+                    int driverId = resultSet.getInt("Driver_ID");
+                    return new Vehicle(vehicleId, loadCapacity, driverId);
+                }
+            }
+        }
+        return null;
+    }
+
+
+    public void updateVehicle(int vehicleId, double loadCapacity, int driverId) throws SQLException {
+        String query = "UPDATE Vehicles SET Load_Capacity = ?, Driver_ID = ? WHERE Vehicle_ID = ?";
+        try (Connection connection = SSMSConnect.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setDouble(1, loadCapacity);
+            statement.setInt(2, driverId);
+            statement.setInt(3, vehicleId);
+            statement.executeUpdate();
+        }
+    }
+
+
+    public void deleteVehicle(int vehicleId) throws SQLException {
+        String query = "DELETE FROM Vehicles WHERE Vehicle_ID = ?";
+        try (Connection connection = SSMSConnect.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, vehicleId);
+            statement.executeUpdate();
+        }
+    }
+}
