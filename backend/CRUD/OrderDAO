@@ -1,0 +1,99 @@
+package Razzvozz;
+
+import org.springframework.stereotype.Repository;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+@Repository
+public class OrderDAO {
+
+    // Метод для добавления нового заказа
+    public void insertOrder(Order order) throws SQLException {
+        String query = "INSERT INTO Orders (Order_ID, User_ID, Vehicle_ID, Send_Address, Get_Address, Time, Order_Price) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        try (Connection connection = SSMSConnect.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, order.getOrderId());
+            statement.setInt(2, order.getUserId());
+            statement.setInt(3, order.getVehicleId());
+            statement.setString(4, order.getSendAddress());
+            statement.setString(5, order.getGetAddress());
+            statement.setTimestamp(6, Timestamp.valueOf(order.getTime()));
+            statement.setDouble(7, order.getOrderPrice());
+            statement.executeUpdate();
+        }
+    }
+
+    // Метод для получения всех заказов
+    public List<Order> getAllOrders() throws SQLException {
+        List<Order> orders = new ArrayList<>();
+        String query = "SELECT Order_ID, User_ID, Vehicle_ID, Send_Address, Get_Address, Time, Order_Price FROM Orders";
+        try (Connection connection = SSMSConnect.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query);
+             ResultSet resultSet = statement.executeQuery()) {
+            while (resultSet.next()) {
+                Order order = new Order(
+                        resultSet.getInt("Order_ID"),
+                        resultSet.getInt("User_ID"),
+                        resultSet.getInt("Vehicle_ID"),
+                        resultSet.getString("Send_Address"),
+                        resultSet.getString("Get_Address"),
+                        resultSet.getTimestamp("Time").toLocalDateTime(),
+                        resultSet.getDouble("Order_Price")
+                );
+                orders.add(order);
+            }
+        }
+        return orders;
+    }
+
+    // Метод для получения заказа по ID
+    public Order getOrderById(int orderId) throws SQLException {
+        String query = "SELECT Order_ID, User_ID, Vehicle_ID, Send_Address, Get_Address, Time, Order_Price FROM Orders WHERE Order_ID = ?";
+        try (Connection connection = SSMSConnect.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, orderId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return new Order(
+                            resultSet.getInt("Order_ID"),
+                            resultSet.getInt("User_ID"),
+                            resultSet.getInt("Vehicle_ID"),
+                            resultSet.getString("Send_Address"),
+                            resultSet.getString("Get_Address"),
+                            resultSet.getTimestamp("Time").toLocalDateTime(),
+                            resultSet.getDouble("Order_Price")
+                    );
+                }
+            }
+        }
+        return null;
+    }
+
+    // Метод для обновления заказа
+    public void updateOrder(Order order) throws SQLException {
+        String query = "UPDATE Orders SET User_ID = ?, Vehicle_ID = ?, Send_Address = ?, Get_Address = ?, Time = ?, Order_Price = ? WHERE Order_ID = ?";
+        try (Connection connection = SSMSConnect.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, order.getUserId());
+            statement.setInt(2, order.getVehicleId());
+            statement.setString(3, order.getSendAddress());
+            statement.setString(4, order.getGetAddress());
+            statement.setTimestamp(5, Timestamp.valueOf(order.getTime()));
+            statement.setDouble(6, order.getOrderPrice());
+            statement.setInt(7, order.getOrderId());
+            statement.executeUpdate();
+        }
+    }
+
+    // Метод для удаления заказа
+    public void deleteOrder(int orderId) throws SQLException {
+        String query = "DELETE FROM Orders WHERE Order_ID = ?";
+        try (Connection connection = SSMSConnect.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, orderId);
+            statement.executeUpdate();
+        }
+    }
+}
