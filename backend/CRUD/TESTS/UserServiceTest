@@ -29,16 +29,42 @@ class UserServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        testUser = new User(1, "testUser", "password123", false);
+        testUser = new User(1, "testUser", "password123", false, "test@example.com", "1234567890");
     }
 
     @Test
     void testCreateUser() throws SQLException {
         // Test for successful user creation
-        doNothing().when(userDAO).insertUser(testUser.getUserId(), testUser.getLogin(), testUser.getPassword(), testUser.isAdmin());
+        doNothing().when(userDAO).insertUser(
+                testUser.getUserId(),
+                testUser.getLogin(),
+                testUser.getPassword(),
+                testUser.isAdmin(),
+                testUser.getEmail(),
+                testUser.getTelephone()
+        );
+        when(userDAO.isEmailRegistered(testUser.getEmail())).thenReturn(false);
 
         assertDoesNotThrow(() -> userService.createUser(testUser));
-        verify(userDAO, times(1)).insertUser(testUser.getUserId(), testUser.getLogin(), testUser.getPassword(), testUser.isAdmin());
+        verify(userDAO, times(1)).insertUser(
+                testUser.getUserId(),
+                testUser.getLogin(),
+                testUser.getPassword(),
+                testUser.isAdmin(),
+                testUser.getEmail(),
+                testUser.getTelephone()
+        );
+    }
+
+    @Test
+    void testCreateUserWithExistingEmail() throws SQLException {
+        // Test for user creation with an already registered email
+        when(userDAO.isEmailRegistered(testUser.getEmail())).thenReturn(true);
+
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> userService.createUser(testUser));
+        assertEquals("Email уже зарегистрирован: " + testUser.getEmail(), exception.getMessage());
+        verify(userDAO, never()).insertUser(
+                anyInt(), anyString(), anyString(), anyBoolean(), anyString(), anyString());
     }
 
     @Test
@@ -96,10 +122,24 @@ class UserServiceTest {
     @Test
     void testUpdateUser() throws SQLException {
         // Test for updating user
-        doNothing().when(userDAO).updateUser(testUser.getUserId(), testUser.getLogin(), testUser.getPassword(), testUser.isAdmin());
+        doNothing().when(userDAO).updateUser(
+                testUser.getUserId(),
+                testUser.getLogin(),
+                testUser.getPassword(),
+                testUser.isAdmin(),
+                testUser.getEmail(),
+                testUser.getTelephone()
+        );
 
         assertDoesNotThrow(() -> userService.updateUser(testUser.getUserId(), testUser));
-        verify(userDAO, times(1)).updateUser(testUser.getUserId(), testUser.getLogin(), testUser.getPassword(), testUser.isAdmin());
+        verify(userDAO, times(1)).updateUser(
+                testUser.getUserId(),
+                testUser.getLogin(),
+                testUser.getPassword(),
+                testUser.isAdmin(),
+                testUser.getEmail(),
+                testUser.getTelephone()
+        );
     }
 
     @Test
@@ -131,4 +171,3 @@ class UserServiceTest {
         verify(userDAO, times(1)).getUserByLogin(testUser.getLogin());
     }
 }
-
