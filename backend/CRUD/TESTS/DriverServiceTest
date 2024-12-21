@@ -1,0 +1,92 @@
+package test;
+
+import Razzvozz.Driver;
+import Razzvozz.DriverDAO;
+import Razzvozz.DriverService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+class DriverServiceTest {
+
+    @Mock
+    private DriverDAO driverDAO;
+
+    @InjectMocks
+    private DriverService driverService;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
+
+    @Test
+    void testCreateDriver() throws SQLException {
+        Driver driver = new Driver(1, "John Doe", "123456789", 2500.50);
+
+        assertDoesNotThrow(() -> driverService.createDriver(driver));
+        verify(driverDAO, times(1)).insertDriver(driver.getDriverId(), driver.getDriverName(), driver.getTelephone(), driver.getSalary());
+    }
+
+    @Test
+    void testGetAllDrivers() throws SQLException {
+        List<Driver> expectedDrivers = new ArrayList<>();
+        expectedDrivers.add(new Driver(1, "John Doe", "123456789", 2500.50));
+        expectedDrivers.add(new Driver(2, "Jane Smith", "987654321", 3000.75));
+
+        when(driverDAO.getAllDrivers()).thenReturn(expectedDrivers);
+
+        List<Driver> actualDrivers = driverService.getAllDrivers();
+        assertEquals(expectedDrivers, actualDrivers);
+        verify(driverDAO, times(1)).getAllDrivers();
+    }
+
+    @Test
+    void testGetDriverById() throws SQLException {
+        int driverId = 1;
+        Driver expectedDriver = new Driver(driverId, "John Doe", "123456789", 2500.50);
+
+        when(driverDAO.getDriverById(driverId)).thenReturn(expectedDriver);
+
+        Driver actualDriver = driverService.getDriverById(driverId);
+        assertEquals(expectedDriver, actualDriver);
+        verify(driverDAO, times(1)).getDriverById(driverId);
+    }
+
+    @Test
+    void testGetDriverByIdNotFound() throws SQLException {
+        int driverId = 2;
+
+        when(driverDAO.getDriverById(driverId)).thenReturn(null);
+
+        Driver actualDriver = driverService.getDriverById(driverId);
+        assertNull(actualDriver);
+        verify(driverDAO, times(1)).getDriverById(driverId);
+    }
+
+    @Test
+    void testUpdateDriver() throws SQLException {
+        int driverId = 1;
+        Driver updatedDriver = new Driver(driverId, "John Updated", "555555555", 2800.00);
+
+        assertDoesNotThrow(() -> driverService.updateDriver(driverId, updatedDriver));
+        verify(driverDAO, times(1)).updateDriver(driverId, updatedDriver.getDriverName(), updatedDriver.getTelephone(), updatedDriver.getSalary());
+    }
+
+    @Test
+    void testDeleteDriver() throws SQLException {
+        int driverId = 1;
+
+        assertDoesNotThrow(() -> driverService.deleteDriver(driverId));
+        verify(driverDAO, times(1)).deleteDriver(driverId);
+    }
+}
