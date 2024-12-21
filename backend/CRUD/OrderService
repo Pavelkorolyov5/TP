@@ -1,0 +1,53 @@
+package Razzvozz;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.sql.SQLException;
+import java.util.List;
+
+@Service
+public class OrderService {
+
+    private static final Logger logger = LogManager.getLogger(OrderService.class);
+
+    @Autowired
+    private OrderDAO orderDAO;
+
+    public void createOrder(Order order) throws SQLException {
+        orderDAO.insertOrder(order);
+        logger.info("Order created: Order_ID={} User_ID={} Vehicle_ID={}", 
+                    order.getOrderId(), order.getUserId(), order.getVehicleId());
+    }
+
+    public List<Order> getAllOrders() throws SQLException {
+        List<Order> orders = orderDAO.getAllOrders();
+        logger.info("Retrieved all orders, count={}", orders.size());
+        return orders;
+    }
+
+    public Order getOrderById(int orderId) throws SQLException {
+        Order order = orderDAO.getOrderById(orderId);
+        if (order != null) {
+            logger.info("Order found: Order_ID={} User_ID={} Vehicle_ID={}", 
+                        order.getOrderId(), order.getUserId(), order.getVehicleId());
+        } else {
+            logger.warn("Order with ID={} not found", orderId);
+        }
+        return order;
+    }
+
+    public void updateOrder(int orderId, Order order) throws SQLException {
+        order.setOrderId(orderId);
+        orderDAO.updateOrder(order);
+        logger.info("Order updated: Order_ID={} User_ID={} Vehicle_ID={}", 
+                    orderId, order.getUserId(), order.getVehicleId());
+    }
+
+    public void deleteOrder(int orderId) throws SQLException {
+        orderDAO.deleteOrder(orderId);
+        logger.info("Order deleted: Order_ID={}", orderId);
+    }
+}
