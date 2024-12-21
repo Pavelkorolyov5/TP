@@ -1,0 +1,98 @@
+package test;
+import Razzvozz.Order;
+import Razzvozz.OrderDAO;
+import Razzvozz.OrderService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import java.math.BigDecimal;
+import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+class OrderServiceTest {
+
+    @Mock
+    private OrderDAO orderDAO;
+
+    @InjectMocks
+    private OrderService orderService;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
+
+    @Test
+    void testCreateOrder() throws SQLException {
+        Order order = new Order(1, 101, 201, "123 Main St", "456 Elm St", 
+                                LocalDateTime.now(), 150.00);
+
+        assertDoesNotThrow(() -> orderService.createOrder(order));
+        verify(orderDAO, times(1)).insertOrder(order);
+    }
+
+    @Test
+    void testGetAllOrders() throws SQLException {
+        List<Order> expectedOrders = new ArrayList<>();
+        expectedOrders.add(new Order(1, 101, 201, "123 Main St", "456 Elm St", 
+                                     LocalDateTime.now(), 150.00));
+        expectedOrders.add(new Order(2, 102, 202, "789 Pine St", "321 Oak St", 
+                                     LocalDateTime.now(), 250.00));
+
+        when(orderDAO.getAllOrders()).thenReturn(expectedOrders);
+
+        List<Order> actualOrders = orderService.getAllOrders();
+        assertEquals(expectedOrders, actualOrders);
+        verify(orderDAO, times(1)).getAllOrders();
+    }
+
+    @Test
+    void testGetOrderById() throws SQLException {
+        int orderId = 1;
+        Order expectedOrder = new Order(orderId, 101, 201, "123 Main St", 
+                                        "456 Elm St", LocalDateTime.now(), 150.00);
+
+        when(orderDAO.getOrderById(orderId)).thenReturn(expectedOrder);
+
+        Order actualOrder = orderService.getOrderById(orderId);
+        assertEquals(expectedOrder, actualOrder);
+        verify(orderDAO, times(1)).getOrderById(orderId);
+    }
+
+    @Test
+    void testGetOrderByIdNotFound() throws SQLException {
+        int orderId = 2;
+
+        when(orderDAO.getOrderById(orderId)).thenReturn(null);
+
+        Order actualOrder = orderService.getOrderById(orderId);
+        assertNull(actualOrder);
+        verify(orderDAO, times(1)).getOrderById(orderId);
+    }
+
+    @Test
+    void testUpdateOrder() throws SQLException {
+        int orderId = 1;
+        Order updatedOrder = new Order(orderId, 101, 201, "Updated Address", 
+                                       "New Delivery Address", LocalDateTime.now(), 175.00);
+
+        assertDoesNotThrow(() -> orderService.updateOrder(orderId, updatedOrder));
+        verify(orderDAO, times(1)).updateOrder(updatedOrder);
+    }
+
+    @Test
+    void testDeleteOrder() throws SQLException {
+        int orderId = 1;
+
+        assertDoesNotThrow(() -> orderService.deleteOrder(orderId));
+        verify(orderDAO, times(1)).deleteOrder(orderId);
+    }
+}
