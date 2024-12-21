@@ -1,0 +1,92 @@
+package test;
+
+import Razzvozz.Vehicle;
+import Razzvozz.VehicleDAO;
+import Razzvozz.VehicleService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+class VehicleServiceTest {
+
+    @Mock
+    private VehicleDAO vehicleDAO;
+
+    @InjectMocks
+    private VehicleService vehicleService;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
+
+    @Test
+    void testCreateVehicle() throws SQLException {
+        Vehicle vehicle = new Vehicle(1, 2000.50, 123);
+
+        assertDoesNotThrow(() -> vehicleService.createVehicle(vehicle));
+        verify(vehicleDAO, times(1)).insertVehicle(vehicle.getVehicleId(), vehicle.getLoadCapacity(), vehicle.getDriverId());
+    }
+
+    @Test
+    void testGetAllVehicles() throws SQLException {
+        List<Vehicle> expectedVehicles = new ArrayList<>();
+        expectedVehicles.add(new Vehicle(1, 2000.50, 123));
+        expectedVehicles.add(new Vehicle(2, 3000.75, 124));
+
+        when(vehicleDAO.getAllVehicles()).thenReturn(expectedVehicles);
+
+        List<Vehicle> actualVehicles = vehicleService.getAllVehicles();
+        assertEquals(expectedVehicles, actualVehicles);
+        verify(vehicleDAO, times(1)).getAllVehicles();
+    }
+
+    @Test
+    void testGetVehicleById() throws SQLException {
+        int vehicleId = 1;
+        Vehicle expectedVehicle = new Vehicle(vehicleId, 2000.50, 123);
+
+        when(vehicleDAO.getVehicleById(vehicleId)).thenReturn(expectedVehicle);
+
+        Vehicle actualVehicle = vehicleService.getVehicleById(vehicleId);
+        assertEquals(expectedVehicle, actualVehicle);
+        verify(vehicleDAO, times(1)).getVehicleById(vehicleId);
+    }
+
+    @Test
+    void testGetVehicleByIdNotFound() throws SQLException {
+        int vehicleId = 2;
+
+        when(vehicleDAO.getVehicleById(vehicleId)).thenReturn(null);
+
+        Vehicle actualVehicle = vehicleService.getVehicleById(vehicleId);
+        assertNull(actualVehicle);
+        verify(vehicleDAO, times(1)).getVehicleById(vehicleId);
+    }
+
+    @Test
+    void testUpdateVehicle() throws SQLException {
+        int vehicleId = 1;
+        Vehicle updatedVehicle = new Vehicle(vehicleId, 2500.00, 123);
+
+        assertDoesNotThrow(() -> vehicleService.updateVehicle(vehicleId, updatedVehicle));
+        verify(vehicleDAO, times(1)).updateVehicle(vehicleId, updatedVehicle.getLoadCapacity(), updatedVehicle.getDriverId());
+    }
+
+    @Test
+    void testDeleteVehicle() throws SQLException {
+        int vehicleId = 1;
+
+        assertDoesNotThrow(() -> vehicleService.deleteVehicle(vehicleId));
+        verify(vehicleDAO, times(1)).deleteVehicle(vehicleId);
+    }
+}
