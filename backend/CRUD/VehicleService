@@ -1,0 +1,49 @@
+package Razzvozz;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.sql.SQLException;
+import java.util.List;
+
+@Service
+public class VehicleService {
+
+    private static final Logger logger = LogManager.getLogger(VehicleService.class);
+
+    @Autowired
+    private VehicleDAO vehicleDAO;
+
+    public void createVehicle(Vehicle vehicle) throws SQLException {
+        vehicleDAO.insertVehicle(vehicle.getVehicleId(), vehicle.getLoadCapacity(), vehicle.getDriverId());
+        logger.info("Транспортное средство создано: ID=" + vehicle.getVehicleId());
+    }
+
+    public List<Vehicle> getAllVehicles() throws SQLException {
+        List<Vehicle> vehicles = vehicleDAO.getAllVehicles();
+        logger.info("Получен список всех транспортных средств, количество: " + vehicles.size());
+        return vehicles;
+    }
+
+    public Vehicle getVehicleById(int vehicleId) throws SQLException {
+        Vehicle vehicle = vehicleDAO.getVehicleById(vehicleId);
+        if (vehicle != null) {
+            logger.info("Транспортное средство найдено: ID=" + vehicleId);
+        } else {
+            logger.warn("Транспортное средство с ID=" + vehicleId + " не найдено");
+        }
+        return vehicle;
+    }
+
+    public void updateVehicle(int vehicleId, Vehicle vehicle) throws SQLException {
+        vehicleDAO.updateVehicle(vehicleId, vehicle.getLoadCapacity(), vehicle.getDriverId());
+        logger.info("Транспортное средство обновлено: ID=" + vehicleId);
+    }
+
+    public void deleteVehicle(int vehicleId) throws SQLException {
+        vehicleDAO.deleteVehicle(vehicleId);
+        logger.info("Транспортное средство удалено: ID=" + vehicleId);
+    }
+}
