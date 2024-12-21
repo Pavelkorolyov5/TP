@@ -1,0 +1,68 @@
+package Razzvozz;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.sql.SQLException;
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/vehicles")
+public class VehicleController {
+
+    @Autowired
+    private VehicleService vehicleService;
+
+    @PostMapping
+    public ResponseEntity<String> createVehicle(@RequestBody Vehicle vehicle) {
+        try {
+            vehicleService.createVehicle(vehicle);
+            return ResponseEntity.ok("Транспортное средство создано.");
+        } catch (SQLException e) {
+            return ResponseEntity.status(500).body("Ошибка сервера: " + e.getMessage());
+        }
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Vehicle>> getAllVehicles() {
+        try {
+            return ResponseEntity.ok(vehicleService.getAllVehicles());
+        } catch (SQLException e) {
+            return ResponseEntity.status(500).build();
+        }
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Vehicle> getVehicleById(@PathVariable int id) {
+        try {
+            Vehicle vehicle = vehicleService.getVehicleById(id);
+            if (vehicle == null) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(vehicle);
+        } catch (SQLException e) {
+            return ResponseEntity.status(500).build();
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<String> updateVehicle(@PathVariable int id, @RequestBody Vehicle vehicle) {
+        try {
+            vehicleService.updateVehicle(id, vehicle);
+            return ResponseEntity.ok("Транспортное средство обновлено.");
+        } catch (SQLException e) {
+            return ResponseEntity.status(500).body("Ошибка сервера: " + e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteVehicle(@PathVariable int id) {
+        try {
+            vehicleService.deleteVehicle(id);
+            return ResponseEntity.ok("Транспортное средство удалено.");
+        } catch (SQLException e) {
+            return ResponseEntity.status(500).body("Ошибка сервера: " + e.getMessage());
+        }
+    }
+}
