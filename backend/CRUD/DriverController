@@ -1,0 +1,65 @@
+package Razzvozz;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.sql.SQLException;
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/drivers")
+public class DriverController {
+
+    @Autowired
+    private DriverService driverService;
+
+    @PostMapping
+    public ResponseEntity<String> createDriver(@RequestBody Driver driver) {
+        try {
+            driverService.createDriver(driver);
+            return ResponseEntity.ok("Driver created successfully");
+        } catch (SQLException e) {
+            return ResponseEntity.status(500).body("Error creating driver: " + e.getMessage());
+        }
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Driver>> getAllDrivers() {
+        try {
+            return ResponseEntity.ok(driverService.getAllDrivers());
+        } catch (SQLException e) {
+            return ResponseEntity.status(500).body(null);
+        }
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Driver> getDriverById(@PathVariable int id) {
+        try {
+            Driver driver = driverService.getDriverById(id);
+            return (driver != null) ? ResponseEntity.ok(driver) : ResponseEntity.notFound().build();
+        } catch (SQLException e) {
+            return ResponseEntity.status(500).body(null);
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<String> updateDriver(@PathVariable int id, @RequestBody Driver driver) {
+        try {
+            driverService.updateDriver(id, driver);
+            return ResponseEntity.ok("Driver updated successfully");
+        } catch (SQLException e) {
+            return ResponseEntity.status(500).body("Error updating driver: " + e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteDriver(@PathVariable int id) {
+        try {
+            driverService.deleteDriver(id);
+            return ResponseEntity.ok("Driver deleted successfully");
+        } catch (SQLException e) {
+            return ResponseEntity.status(500).body("Error deleting driver: " + e.getMessage());
+        }
+    }
+}
